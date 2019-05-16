@@ -56,9 +56,9 @@ struct Derive<T, Iface, Ifaces...> {
 };
 
 template <bool Owned, typename T, typename IBase, typename... Ifaces>
-using Derived = typename Derive<
-  T, Ifaces..., Storage_Impl<Owned, T, IBase>
->::type;
+using Derived = Storage_Impl_Outer<Owned, T, typename Derive<
+  T, Ifaces..., Storage_Impl_Inner<T, IBase>
+>::type>;
 
 } // namespace detail
 
@@ -120,10 +120,11 @@ public:
 #endif
 
   // explicit operator bool() const noexcept { ... is void ? ... } ?
+  // dynamic typeid would have to check both Owned=true/false
 
 private:
   template <bool Owned, typename T, typename Base>
-  friend struct detail::Storage_Impl;
+  friend struct detail::Storage_Impl_Outer;
 
   using Dummy = typename IBase::Dummy;
   // typename detail::Derived<false, void, IBase, Ifaces...> dummy;

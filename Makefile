@@ -1,4 +1,5 @@
 OBJECTS=test_poly.o
+DEPENDS=$(OBJECTS:.o=.d)
 
 CXXFLAGS+=-std=c++11 -Wall
 #CXXFLAGS+=-std=c++17 -Wall
@@ -9,7 +10,7 @@ ifneq "$(MAKECMDGOALS)" "clean"
 endif
 
 clean:
-	$(RM) $(OBJECTS:.o=.d) $(OBJECTS) test_poly
+	$(RM) $(DEPENDS) $(OBJECTS) test_poly
 
 %.d: %.cpp
 	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -MM -MT"$@" -MT"$*.o" -o $@ $<  2> /dev/null
