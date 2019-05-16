@@ -5,6 +5,8 @@
 #include "poly_iany.h"
 #include "poly_iclonable.h"
 
+//#define USE_UNSAFE_DERIVED_TO_BASE
+
 #include <new>
 
 namespace Poly {
@@ -110,12 +112,20 @@ public:
   }
 
   IBase *operator->() {
+#ifdef USE_UNSAFE_DERIVED_TO_BASE
     return detail::launder(reinterpret_cast<IBase *>(&data));
+#else
+    return ptr;
+#endif
   }
 
 #if 0
   const IBase *operator->() const {
+#ifdef USE_UNSAFE_DERIVED_TO_BASE
     return detail::launder(reinterpret_cast<const IBase *>(&data));
+#else
+    return ptr;
+#endif
   }
 #endif
 
@@ -135,7 +145,15 @@ private:
 
     static_assert(alignof(Dummy)==alignof(Impl), "alignment mismatch");
     static_assert(sizeof(dummy)==sizeof(Impl), "implementation too big");
-    ::new((void *)&data) Impl{ptr};
+    IBase *base = ::new((void *)&data) Impl{ptr};
+#ifdef USE_UNSAFE_DERIVED_TO_BASE
+    // NOTE: neither IBase nor Impl is standard layout!
+    if (base != (void *)&data) {
+      throw std::bad_alloc(); // or something else. undefined behavior ...
+    }
+#else
+    this->ptr = base;
+#endif
   }
 
   template <typename T>
@@ -154,6 +172,9 @@ private:
   }
 
 private:
+#ifndef USE_UNSAFE_DERIVED_TO_BASE
+  IBase *ptr;
+#endif
   union {
     Dummy dummy;
     unsigned char data[];
