@@ -19,9 +19,11 @@ struct IOther {
 template <typename Derived, typename Base=void>
 struct Clonable : Base {
   using Base::Base;
-//  virtual ~Clonable() = default;
-//  virtual Derived *clone() const
-  Derived *clone() const override {
+  Derived *clone() const {
+    return static_cast<Derived *>(clone_impl());
+  }
+private:
+  virtual Clonable *clone_impl() const {
     return new Derived(*static_cast<const Derived *>(this));
   }
 };
@@ -29,7 +31,11 @@ struct Clonable : Base {
 template <typename Derived>
 struct Clonable<Derived, void> {
   virtual ~Clonable() = default;
-  virtual Derived *clone() const {
+  Derived *clone() const {
+    return static_cast<Derived *>(clone_impl());
+  }
+private:
+  virtual Clonable *clone_impl() const {
     return new Derived(*static_cast<const Derived *>(this));
   }
 };
