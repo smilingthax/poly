@@ -1,4 +1,5 @@
 #include "poly.h"
+#include "poly_iextra.h"
 #include <stdio.h>
 
 struct IOther {
@@ -45,13 +46,20 @@ struct Foo : Clonable<Foo> {
 //  int x;
 };
 
+void test_extra()
+{
+  Poly::poly<> p;
+  Poly::poly<Poly::IExtra<5>> pe;
+//  Poly::poly<Poly::IExtra<1,void*>> pe;
+  printf("%d %d\n", sizeof(p), sizeof(pe));
+}
+
 int main()
 {
 //  int i1=5;
 //  Poly::poly<Poly::IAny> pi(&i1, false);
   Poly::poly<Poly::IAny> pi(new int{6});
 
-//  Poly::poly<> p;
 //  Poly::poly<Poly::IAny> p;
 //  Poly::poly<Poly::IAny, IOther> p;
   Poly::poly<IOther, Poly::IAny> p;
@@ -75,6 +83,8 @@ p->more();
   printf("%d\n", p->is<void>());
   printf("%d\n", p->is<int>());
   printf("%d\n", p->is<char>());
+
+//  test_extra();
 
   return 0;
 }

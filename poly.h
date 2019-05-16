@@ -143,8 +143,8 @@ private:
   void put(T *ptr) {
     using Impl = typename detail::Derived<Owned, T, IBase, Ifaces...>;
 
-    static_assert(alignof(Dummy)==alignof(Impl), "alignment mismatch");
-    static_assert(sizeof(dummy)==sizeof(Impl), "implementation too big");
+    static_assert(alignof(Dummy)>=alignof(Impl), "alignment mismatch");
+    static_assert(sizeof(dummy)>=sizeof(Impl), "implementation too big");
     IBase *base = ::new((void *)&data) Impl{ptr};
 #ifdef USE_UNSAFE_DERIVED_TO_BASE
     // NOTE: neither IBase nor Impl is standard layout!
